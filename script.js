@@ -2,9 +2,7 @@ const qs = (selector, root = document) => root.querySelector(selector);
 const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
 
 const state = { preview: null };
-const swiggyUrl = "https://www.swiggy.com/city/mumbai/libon-the-cake-expert-opp-rassaz-theatre-mira-road-rest382300";
-const zomatoUrl = "https://www.zomato.com/mumbai/libon-the-cake-expert-mira-road/order";
-const whatsappBase = "https://wa.me/919876543210";
+const whatsappBase = "https://wa.me/919881002823";
 
 window.addEventListener("load", () => {
   qs("#loader").classList.add("hidden");
@@ -96,14 +94,14 @@ function calcCake() {
   const toppings = qsa('.topping-group input[type="checkbox"]:checked');
   const toppingTotal = toppings.reduce((sum, item) => sum + Number(item.dataset.price), 0);
   const total = selectedOptionPrice("size") + selectedOptionPrice("flavor") + selectedOptionPrice("cream") + toppingTotal;
-  const message = qs("#message").value.trim() || "Libon";
+  const message = qs("#message").value.trim() || "Smiley";
   const toppingText = toppings.map(item => item.value).join(", ") || "classic finish";
 
   totalPrice.textContent = `Rs. ${total.toLocaleString("en-IN")}`;
   builderSummary.textContent = `${selectedOptionText("flavor")}, ${selectedOptionText("size")}, ${selectedOptionText("cream").toLowerCase()}, ${toppingText}.`;
   cakeMessage.textContent = message.slice(0, 24);
   if (customWhatsApp) {
-    const text = `Hi Libon, I want to order a custom cake: ${selectedOptionText("flavor")}, ${selectedOptionText("size")}, ${selectedOptionText("cream")}, toppings: ${toppingText}, message: ${message}, estimated total Rs. ${total.toLocaleString("en-IN")}.`;
+    const text = `Hi Smiley Cakes, I want to order a custom cake: ${selectedOptionText("flavor")}, ${selectedOptionText("size")}, ${selectedOptionText("cream")}, toppings: ${toppingText}, message: ${message}, estimated total Rs. ${total.toLocaleString("en-IN")}.`;
     customWhatsApp.href = `${whatsappBase}?text=${encodeURIComponent(text)}`;
   }
 
@@ -134,22 +132,36 @@ qsa(".cake-card").forEach(card => {
     qs("#previewImg").alt = state.preview.title;
     qs("#previewTitle").textContent = state.preview.title;
     qs("#previewPrice").textContent = `Starting at Rs. ${state.preview.price.toLocaleString("en-IN")}`;
-    qs("#modalOrder").href = state.preview.title.includes("Chocolate") || state.preview.title.includes("Dessert") ? zomatoUrl : swiggyUrl;
+    qs("#modalOrder").href = `${whatsappBase}?text=${encodeURIComponent(`Hi Smiley Cakes, I want to order ${state.preview.title}.`)}`;
     previewModal.show();
   });
 });
 
 const lightbox = qs("#lightbox");
+const galleryPreviewImg = qs("#galleryPreviewImg");
+const galleryCaption = qs("#galleryCaption");
+
+function openGalleryPreview(item) {
+  if (!lightbox || !galleryPreviewImg) return;
+  galleryPreviewImg.src = item.dataset.img;
+  galleryPreviewImg.alt = item.querySelector("img")?.alt || "Gallery preview";
+  if (galleryCaption) {
+    galleryCaption.textContent = item.dataset.caption || galleryPreviewImg.alt;
+  }
+  lightbox.classList.add("open");
+}
+
 qsa(".gallery-item").forEach(item => {
-  item.addEventListener("click", () => {
-    qs("img", lightbox).src = item.dataset.img;
-    lightbox.classList.add("open");
+  item.addEventListener("click", () => openGalleryPreview(item));
+});
+
+if (lightbox) {
+  const closeButton = qs("button", lightbox);
+  closeButton?.addEventListener("click", () => lightbox.classList.remove("open"));
+  lightbox.addEventListener("click", event => {
+    if (event.target === lightbox) lightbox.classList.remove("open");
   });
-});
-qs("button", lightbox).addEventListener("click", () => lightbox.classList.remove("open"));
-lightbox.addEventListener("click", event => {
-  if (event.target === lightbox) lightbox.classList.remove("open");
-});
+}
 
 qsa(".contact-form, .newsletter").forEach(form => {
   form.addEventListener("submit", event => {
@@ -157,7 +169,7 @@ qsa(".contact-form, .newsletter").forEach(form => {
     const name = qs('input[type="text"]', form)?.value || "";
     const phone = qs('input[type="tel"]', form)?.value || "";
     const idea = qs("textarea", form)?.value || "I want to enquire about a cake.";
-    const text = `Hi Libon, ${idea} Name: ${name}. Phone: ${phone}.`;
+    const text = `Hi Smiley Cakes, ${idea} Name: ${name}. Phone: ${phone}.`;
     window.open(`${whatsappBase}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
   });
 });
